@@ -1,0 +1,91 @@
+name: Auto-merge on Push to Claude Branch
+
+on:
+  push:
+    branches:
+      - 'claude/**'
+
+jobs:
+  create-and-merge-pr:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+
+      - name: Check if PR exists
+        id: check_pr
+        run: |
+          PR_NUMBER=$(gh pr list --head ${{ steps.branch.outputs.branch }} --base main --json number --jq '.[0].number')
+          if [ -z "$PR_NUMBER" ]; then
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "PR does not exist"
+          else
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            echo "PR #$PR_NUMBER already exists"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Request
+        if: steps.check_pr.outputs.exists == 'false'
+        id: create_pr
+        run: |
+          PR_URL=$(gh pr create \
+            --base main \
+            --head ${{ steps.branch.outputs.branch }} \
+            --title "Auto-merge: Updates from ${{ steps.branch.outputs.branch }}" \
+            --body "**Tự động merge code từ Claude branch**
+
+          Branch: \`${{ steps.branch.outputs.branch }}\`
+
+          ### Các thay đổi:
+          - Xem chi tiết trong các commits
+
+          ---
+          *Pull Request này được tạo tự động bởi GitHub Actions*")
+
+          PR_NUMBER=$(echo $PR_URL | grep -oP '\d+$')
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "Created PR #$PR_NUMBER"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-merge PR
+        run: |
+          if [ "${{ steps.check_pr.outputs.exists }}" == "true" ]; then
+            PR_NUMBER=${{ steps.check_pr.outputs.number }}
+          else
+            PR_NUMBER=${{ steps.create_pr.outputs.number }}
+          fi
+
+          echo "Attempting to merge PR #$PR_NUMBER"
+
+          # Đợi một chút để PR được tạo hoàn toàn
+          sleep 5
+
+          # Merge PR
+          gh pr merge $PR_NUMBER --merge --auto || gh pr merge $PR_NUMBER --merge || echo "Could not auto-merge, may require manual intervention"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "✅ Workflow hoàn tất!"
+          echo "Branch: ${{ steps.branch.outputs.branch }}"
+          if [ "${{ steps.check_pr.outputs.exists }}" == "true" ]; then
+            echo "PR #${{ steps.check_pr.outputs.number }} đã được cập nhật và merge"
+          else
+            echo "PR #${{ steps.create_pr.outputs.number }} đã được tạo và merge"
+          fi
