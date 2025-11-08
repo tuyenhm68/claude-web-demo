@@ -1,0 +1,21 @@
+{
+  "name": "sora-puppeteer-automation",
+  "version": "1.0.0",
+  "description": "Puppeteer script to automate Sora ChatGPT video creation with Chrome profile",
+  "main": "sora-with-profile.js",
+  "scripts": {
+    "start": "node sora-with-profile.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "puppeteer",
+    "automation",
+    "sora",
+    "chatgpt"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
