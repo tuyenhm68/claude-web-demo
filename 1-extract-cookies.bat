@@ -25,23 +25,26 @@ if not exist "node_modules\" (
 
 echo.
 echo ========================================
-echo  LUU Y QUAN TRONG:
+echo  QUY TRINH LAY COOKIES:
 echo ========================================
 echo.
 echo 1. Chrome se mo voi Profile 1
-echo 2. Dam bao da DANG NHAP vao Sora
-echo 3. Neu gap loi "Failed to launch":
-echo    - Dong TAT CA Chrome thu cong
-echo    - Chay lai script nay
-echo 4. Script se lay cookies va luu vao cookies.json
-echo 5. File cookies.json chua thong tin NHAY CAM
-echo    - KHONG chia se voi nguoi khac
-echo    - KHONG commit vao Git
+echo 2. Trang Sora se tu dong mo
+echo 3. Ban hay DANG NHAP vao Sora trong Chrome
+echo 4. Sau khi dang nhap xong, quay lai console
+echo 5. Nhan ENTER de luu cookies
+echo 6. Chrome se tu dong dong
+echo.
+echo LUU Y:
+echo - DUNG DONG Chrome thu cong!
+echo - Neu gap loi, dong TAT CA Chrome va chay lai
+echo - File cookies.json la NHAY CAM (khong chia se)
 echo.
 pause
 
 echo.
-echo [INFO] Dang chay script lay cookies...
+echo [INFO] Dang chay script...
+echo [INFO] Lam theo huong dan tren console...
 echo.
 
 node extract-cookies.js
@@ -52,22 +55,24 @@ if %ERRORLEVEL% EQU 0 (
     echo   THANH CONG!
     echo ====================================
     echo.
-    echo Da luu cookies vao: cookies.json
+    echo Cookies da duoc luu vao: cookies.json
     echo.
     echo BUOC TIEP THEO:
     echo - Chay: 2-run-with-cookies.bat
+    echo - Hoac: node sora-with-cookies.js
     echo.
 ) else (
     echo.
-    echo [ERROR] Lay cookies that bai!
+    echo [ERROR] Quy trinh that bai!
     echo.
     echo GIAI PHAP:
-    echo 1. Dam bao Chrome Profile 1 da dang nhap Sora
-    echo 2. Dong TAT CA Chrome thu cong (neu gap loi profile lock)
-    echo 3. Thu lai script nay
-    echo.
-    echo HOAC dung cach khac:
-    echo - Chay: 2-run-with-cookies.bat (neu da co cookies.json)
+    echo 1. Kiem tra console de xem loi cu the
+    echo 2. Neu gap loi "Failed to launch":
+    echo    - Dong TAT CA Chrome thu cong
+    echo    - Hoac chay: kill-chrome.bat
+    echo    - Thu lai script nay
+    echo 3. Neu da co cookies.json, co the chay:
+    echo    - 2-run-with-cookies.bat
     echo.
 )
 
