@@ -6,17 +6,22 @@ REM ========================================
 echo.
 echo ====================================
 echo   GIAI PHAP 1-CLICK
-echo   Tu dong dong Chrome va chay script
+echo   Remote Debugging - Khong dong Chrome
 echo ====================================
 echo.
 
-echo [BUOC 1/4] Dong tat ca Chrome processes...
-taskkill /F /IM chrome.exe /T >NUL 2>&1
-timeout /t 2 /nobreak >NUL
-echo [OK] Da dong Chrome!
-
+echo ========================================
+echo  CAU HINH:
+echo  - Profile: Profile 1
+echo  - Remote Debug Port: 9222
+echo ========================================
 echo.
-echo [BUOC 2/4] Khoi dong Chrome voi Remote Debugging...
+echo LUU Y: Neu gap loi, hay:
+echo 1. Dong TAT CA Chrome thu cong
+echo 2. Chay lai script nay
+echo.
+
+echo [BUOC 1/3] Khoi dong Chrome voi Remote Debugging...
 start "" "E:\temp\VEO_3_create-16-10\creatve_viodeo\browser133\chrome.exe" ^
     --remote-debugging-port=9222 ^
     --user-data-dir="E:\temp\VEO_3_create-16-10\creatve_viodeo\profile" ^
@@ -25,12 +30,12 @@ start "" "E:\temp\VEO_3_create-16-10\creatve_viodeo\browser133\chrome.exe" ^
 echo [OK] Chrome da khoi dong!
 
 echo.
-echo [BUOC 3/4] Cho Chrome khoi dong hoan toan...
+echo [BUOC 2/3] Cho Chrome khoi dong hoan toan...
 timeout /t 3 /nobreak >NUL
 echo [OK] San sang!
 
 echo.
-echo [BUOC 4/4] Chay Puppeteer script...
+echo [BUOC 3/3] Chay Puppeteer script...
 echo.
 node sora-remote-debug.js
 

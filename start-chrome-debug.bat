@@ -10,24 +10,22 @@ echo   Khoi dong Chrome voi Remote Debugging
 echo ====================================
 echo.
 
-REM Đóng tất cả Chrome processes trước
+REM Kiểm tra Chrome đang chạy
 echo [INFO] Kiem tra Chrome processes...
 tasklist /FI "IMAGENAME eq chrome.exe" 2>NUL | find /I /N "chrome.exe">NUL
 
 if "%ERRORLEVEL%"=="0" (
     echo [WARNING] Chrome dang chay!
-    echo [INFO] Can dong Chrome truoc khi khoi dong lai voi debug mode...
     echo.
-    choice /C YN /M "Dong tat ca Chrome processes?"
-    if errorlevel 2 (
-        echo [INFO] Da huy.
-        pause
-        exit /b 0
-    )
-
-    echo [INFO] Dang dong Chrome...
-    taskkill /F /IM chrome.exe /T >NUL 2>&1
-    timeout /t 2 /nobreak >NUL
+    echo LUU Y:
+    echo - Neu Chrome DA MO voi debug port 9222: Script se ket noi duoc
+    echo - Neu Chrome CHUA MO voi debug port: Co the gap loi
+    echo.
+    echo Neu gap loi, hay:
+    echo 1. Dong TAT CA Chrome thu cong
+    echo 2. Chay lai script nay
+    echo.
+    pause
 )
 
 REM Khởi động Chrome với remote debugging

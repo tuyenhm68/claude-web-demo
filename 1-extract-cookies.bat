@@ -23,19 +23,18 @@ if not exist "node_modules\" (
     call npm install
 )
 
-echo [INFO] Dang dong Chrome (neu dang chay)...
-taskkill /F /IM chrome.exe /T >NUL 2>&1
-timeout /t 2 /nobreak >NUL
-
 echo.
 echo ========================================
 echo  LUU Y QUAN TRONG:
 echo ========================================
 echo.
-echo 1. Chrome se mo voi Profile 14
+echo 1. Chrome se mo voi Profile 1
 echo 2. Dam bao da DANG NHAP vao Sora
-echo 3. Script se lay cookies va luu vao cookies.json
-echo 4. File cookies.json chua thong tin NHAY CAM
+echo 3. Neu gap loi "Failed to launch":
+echo    - Dong TAT CA Chrome thu cong
+echo    - Chay lai script nay
+echo 4. Script se lay cookies va luu vao cookies.json
+echo 5. File cookies.json chua thong tin NHAY CAM
 echo    - KHONG chia se voi nguoi khac
 echo    - KHONG commit vao Git
 echo.
@@ -63,9 +62,12 @@ if %ERRORLEVEL% EQU 0 (
     echo [ERROR] Lay cookies that bai!
     echo.
     echo GIAI PHAP:
-    echo 1. Dam bao Chrome Profile 14 da dang nhap Sora
-    echo 2. Dong tat ca Chrome: kill-chrome.bat
+    echo 1. Dam bao Chrome Profile 1 da dang nhap Sora
+    echo 2. Dong TAT CA Chrome thu cong (neu gap loi profile lock)
     echo 3. Thu lai script nay
+    echo.
+    echo HOAC dung cach khac:
+    echo - Chay: 2-run-with-cookies.bat (neu da co cookies.json)
     echo.
 )
 

@@ -9,13 +9,25 @@ echo   Dong tat ca Chrome processes
 echo ====================================
 echo.
 
+echo ========================================
+echo  CANH BAO:
+echo  Script nay se dong TAT CA Chrome!
+echo  Bao gom ca Chrome ban dang su dung!
+echo ========================================
+echo.
+
 echo [INFO] Dang kiem tra Chrome processes...
 tasklist /FI "IMAGENAME eq chrome.exe" 2>NUL | find /I /N "chrome.exe">NUL
 
 if "%ERRORLEVEL%"=="0" (
     echo [WARNING] Tim thay Chrome dang chay!
     echo.
-    choice /C YN /M "Ban co muon dong tat ca Chrome processes khong?"
+    echo LUU Y:
+    echo - TAT CA Chrome se bi dong (ke ca Chrome khac)
+    echo - Tat ca tab dang mo se mat
+    echo - Luu cong viec truoc khi tiep tuc!
+    echo.
+    choice /C YN /M "Ban CHAC CHAN muon dong tat ca Chrome?"
     if errorlevel 2 (
         echo [INFO] Da huy.
         pause
