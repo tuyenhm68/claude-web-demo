@@ -41,15 +41,17 @@ echo.
 echo ========================================
 echo  YEU CAU:
 echo ========================================
-echo - Da co video tren Sora
+echo - Da co video tren Sora Drafts
+echo   (https://sora.chatgpt.com/drafts)
 echo - Cookies con han
 echo.
 echo ========================================
 echo  CHU Y:
 echo ========================================
-echo - Script se thu tu dong download
-echo - Neu khong thanh cong, ban co the
-echo   click thu cong
+echo - Script su dung selector chinh xac
+echo   tu kich ban Puppeteer goc
+echo - Tu dong click video ^> ... ^> Download
+echo - Timeout mac dinh: 5 giay
 echo - Kiem tra thu muc download sau khi
 echo   chay xong
 echo.
@@ -74,14 +76,15 @@ if %ERRORLEVEL% EQU 0 (
     echo [ERROR] Test that bai!
     echo.
     echo NGUYEN NHAN CO THE:
-    echo 1. Khong co video tren Sora
+    echo 1. Khong co video tren Sora Drafts
     echo 2. Cookies da het han
-    echo 3. Selector khong dung
+    echo 3. Selector thay doi (UI cap nhat)
     echo.
     echo GIAI PHAP:
-    echo 1. Dam bao co it nhat 1 video tren Sora
+    echo 1. Mo https://sora.chatgpt.com/drafts
+    echo    va dam bao co video
     echo 2. Chay lai: 1-extract-cookies.bat
-    echo 3. Thu click thu cong trong Chrome
+    echo 3. Kiem tra Chrome de xem loi
     echo.
 )
 

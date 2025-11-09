@@ -6,13 +6,18 @@ const path = require('path');
  * Script TEST DOWNLOAD - Chỉ test chức năng download
  *
  * YÊU CẦU:
- * - Đã có video trên trang Sora
+ * - Đã có video trên trang Sora Drafts
  * - Đã có cookies.json
  *
  * CÁCH DÙNG:
- * 1. Đảm bảo có video sẵn trên https://sora.chatgpt.com/profile
+ * 1. Đảm bảo có video sẵn trên https://sora.chatgpt.com/drafts
  * 2. Chạy: node test-download.js
- * 3. Script sẽ tự động download video đầu tiên
+ * 3. Script sẽ tự động download video đầu tiên từ drafts
+ *
+ * LƯU Ý:
+ * - Script sử dụng các selector chính xác từ kịch bản Puppeteer gốc
+ * - Truy cập /drafts thay vì /profile
+ * - Timeout mặc định: 5 giây
  */
 
 const COOKIES_FILE = path.join(__dirname, 'cookies.json');
@@ -56,7 +61,14 @@ const DOWNLOAD_PATH = 'E:\\temp\\VEO_3_create-16-10\\videos'; // ← Thư mục 
     console.log('[OK] Chrome đã khởi động\n');
 
     const page = await browser.newPage();
-    const timeout = 30000; // 30 giây
+    const timeout = 5000;
+    page.setDefaultTimeout(timeout);
+
+    // Set viewport theo kịch bản gốc
+    await page.setViewport({
+        width: 1126,
+        height: 945
+    });
 
     // Cấu hình download path
     const client = await page.target().createCDPSession();
@@ -71,154 +83,69 @@ const DOWNLOAD_PATH = 'E:\\temp\\VEO_3_create-16-10\\videos'; // ← Thư mục 
     await page.setCookie(...cookiesData.cookies);
     console.log('[OK] Cookies đã load\n');
 
-    // Đi tới trang Sora
-    console.log('[5/6] Mở trang Sora...');
-    await page.goto('https://sora.chatgpt.com/profile', {
-        waitUntil: 'networkidle2'
-    });
+    // Đi tới trang Sora Drafts
+    console.log('[5/6] Mở trang Sora drafts...');
+    await page.goto('https://sora.chatgpt.com/drafts');
     console.log('[OK] Trang đã tải\n');
 
     console.log('[6/6] Thực hiện download...\n');
 
     try {
-        // Đợi một chút để trang load
-        await new Promise(r => setTimeout(r, 3000));
+        const targetPage = page;
 
-        console.log('  → Đang tìm video...');
-
-        // Tìm video đầu tiên (có thể cần điều chỉnh selector)
-        // Thử các cách tìm video:
-        const videoSelectors = [
-            'video',
-            '[role="img"]',
-            'div[class*="video"]',
-            'img[alt*="video"]'
-        ];
-
-        let videoFound = false;
-        for (const selector of videoSelectors) {
-            try {
-                await page.waitForSelector(selector, { timeout: 5000 });
-                console.log(`  → Tìm thấy video với selector: ${selector}`);
-
-                // Click vào video để mở preview
-                await page.click(selector);
-                console.log('  → Đã click vào video');
-                videoFound = true;
-                break;
-            } catch (e) {
-                // Thử selector tiếp theo
-            }
-        }
-
-        if (!videoFound) {
-            console.log('  ⚠️  Không tìm thấy video tự động');
-            console.log('  → Vui lòng click vào video THỦ CÔNG');
-            console.log('  → Sau đó nhấn ENTER để tiếp tục...\n');
-
-            await new Promise(resolve => {
-                process.stdin.once('data', () => resolve());
+        // Bước 1: Click vào video đầu tiên
+        console.log('  → Đang click vào video...');
+        await puppeteer.Locator.race([
+            targetPage.locator('div.relative > div > div > div:nth-of-type(1) video'),
+            targetPage.locator('::-p-xpath(/html/body/main/div[3]/div[1]/div/div/div/div/div[2]/div/div/div[1]/div/div/a/video)'),
+            targetPage.locator(':scope >>> div.relative > div > div > div:nth-of-type(1) video')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 62,
+                y: 75,
+              },
             });
-        }
+        console.log('  → Đã click vào video');
 
-        // Đợi video preview mở
-        await new Promise(r => setTimeout(r, 2000));
-
-        console.log('  → Đang tìm nút "More options" (...)...');
-
-        // Tìm và click nút "..." (More options)
-        const moreButtonSelectors = [
-            'button[aria-label*="More"]',
-            'button[aria-label*="more"]',
-            'button[aria-label*="Options"]',
-            'button:has-text("⋮")',
-            'button:has-text("...")',
-            '[data-testid*="more"]',
-            '[data-testid*="menu"]'
-        ];
-
-        let moreButtonFound = false;
-        for (const selector of moreButtonSelectors) {
-            try {
-                await page.waitForSelector(selector, { timeout: 5000 });
-                console.log(`  → Tìm thấy nút "..." với selector: ${selector}`);
-                await page.click(selector);
-                console.log('  → Đã click nút "..."');
-                moreButtonFound = true;
-                break;
-            } catch (e) {
-                // Thử selector tiếp theo
-            }
-        }
-
-        if (!moreButtonFound) {
-            console.log('  ⚠️  Không tìm thấy nút "..." tự động');
-            console.log('  → Vui lòng click nút "..." THỦ CÔNG');
-            console.log('  → Sau đó nhấn ENTER để tiếp tục...\n');
-
-            await new Promise(resolve => {
-                process.stdin.once('data', () => resolve());
+        // Bước 2: Click vào nút "..." (More options) ở góc phải
+        console.log('  → Đang click nút "..." ở góc phải...');
+        await puppeteer.Locator.race([
+            targetPage.locator('body'),
+            targetPage.locator('::-p-xpath(/html/body)'),
+            targetPage.locator(':scope >>> body')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 1071,
+                y: 62,
+              },
             });
-        }
+        console.log('  → Đã click nút "..."');
 
-        // Đợi menu xuất hiện
-        await new Promise(r => setTimeout(r, 1000));
-
-        console.log('  → Đang tìm nút "Download"...');
-
-        // Click nút Download - Dùng code của bạn
-        try {
-            const targetPage = page;
-            await puppeteer.Locator.race([
-                targetPage.locator('::-p-aria(Download)'),
-                targetPage.locator('#radix-\\:r21\\: > div:nth-of-type(1)'),
-                targetPage.locator('::-p-xpath(//*[@id="radix-:r21:"]/div[1])'),
-                targetPage.locator(':scope >>> #radix-\\:r21\\: > div:nth-of-type(1)'),
-                targetPage.locator('::-p-text(Download)')
-            ])
-                .setTimeout(timeout)
-                .click({
-                  offset: {
-                    x: 76,
-                    y: 22,
-                  },
-                });
-
-            console.log('  → Đã click nút Download!\n');
-
-        } catch (downloadError) {
-            // Thử các selector khác
-            console.log('  → Thử các selector khác...');
-
-            const downloadSelectors = [
-                'button:has-text("Download")',
-                '[role="menuitem"]:has-text("Download")',
-                'a:has-text("Download")',
-                'div:has-text("Download")',
-                '[aria-label*="Download"]'
-            ];
-
-            let downloadClicked = false;
-            for (const selector of downloadSelectors) {
-                try {
-                    await page.click(selector);
-                    console.log(`  → Đã click Download với selector: ${selector}\n`);
-                    downloadClicked = true;
-                    break;
-                } catch (e) {
-                    // Thử selector tiếp theo
-                }
-            }
-
-            if (!downloadClicked) {
-                console.log('  ⚠️  Không tìm thấy nút Download tự động');
-                console.log('  → Vui lòng click "Download" THỦ CÔNG\n');
-            }
-        }
+        // Bước 3: Click vào nút Download
+        console.log('  → Đang click nút Download...');
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Download)'),
+            targetPage.locator('#radix-\\:r23\\: > div:nth-of-type(1)'),
+            targetPage.locator('::-p-xpath(//*[@id="radix-:r23:"]/div[1])'),
+            targetPage.locator(':scope >>> #radix-\\:r23\\: > div:nth-of-type(1)'),
+            targetPage.locator('::-p-text(Download)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 76,
+                y: 20,
+              },
+            });
+        console.log('  → Đã click nút Download!\n');
 
         // Đợi file bắt đầu tải
         console.log('  → Đang đợi file tải về...');
-        await new Promise(r => setTimeout(r, 3000));
+        await new Promise(r => setTimeout(r, 5000));
 
         console.log('\n========================================');
         console.log('  KIỂM TRA KẾT QUẢ:');
@@ -227,6 +154,7 @@ const DOWNLOAD_PATH = 'E:\\temp\\VEO_3_create-16-10\\videos'; // ← Thư mục 
         // Kiểm tra thư mục download
         const files = await fs.readdir(DOWNLOAD_PATH);
         const mp4Files = files.filter(f => f.endsWith('.mp4'));
+        const crdownloadFiles = files.filter(f => f.endsWith('.crdownload'));
 
         if (mp4Files.length > 0) {
             console.log('✅ THÀNH CÔNG! Đã tìm thấy file:\n');
@@ -234,17 +162,27 @@ const DOWNLOAD_PATH = 'E:\\temp\\VEO_3_create-16-10\\videos'; // ← Thư mục 
                 console.log(`   📹 ${f}`);
             });
             console.log(`\n📁 Thư mục: ${DOWNLOAD_PATH}\n`);
+        } else if (crdownloadFiles.length > 0) {
+            console.log('⏳ File đang tải...\n');
+            crdownloadFiles.forEach(f => {
+                console.log(`   ⬇️  ${f}`);
+            });
+            console.log('\n💡 Đợi thêm vài giây để download hoàn tất\n');
         } else {
             console.log('⚠️  Chưa thấy file .mp4 trong thư mục');
             console.log('   Có thể file đang tải hoặc có tên khác\n');
-            console.log('📂 Các file trong thư mục:');
-            files.forEach(f => console.log(`   - ${f}`));
+            if (files.length > 0) {
+                console.log('📂 Các file trong thư mục:');
+                files.forEach(f => console.log(`   - ${f}`));
+            } else {
+                console.log('📂 Thư mục trống');
+            }
             console.log('');
         }
 
         console.log('💡 LƯU Ý:');
-        console.log('- Nếu file đang tải, đợi thêm vài giây');
-        console.log('- File có thể có tên .crdownload (đang tải)');
+        console.log('- File có thể có tên .crdownload khi đang tải');
+        console.log('- Đợi thêm vài giây nếu file vẫn đang download');
         console.log('- Kiểm tra thư mục Downloads mặc định nếu không thấy\n');
 
         console.log('⏸️  Chrome sẽ mở để bạn kiểm tra');
@@ -257,9 +195,17 @@ const DOWNLOAD_PATH = 'E:\\temp\\VEO_3_create-16-10\\videos'; // ← Thư mục 
     } catch (error) {
         console.error('\n❌ LỖI:', error.message);
         console.error('\n💡 GỢI Ý:');
-        console.error('1. Đảm bảo có video trên trang Sora');
-        console.error('2. Thử click thủ công và xem selector');
-        console.error('3. Kiểm tra cookies còn hạn không\n');
+        console.error('1. Đảm bảo có video trên https://sora.chatgpt.com/drafts');
+        console.error('2. Cookies có thể đã hết hạn - chạy lại: 1-extract-cookies.bat');
+        console.error('3. Selector có thể thay đổi - cần cập nhật code');
+        console.error('4. Thử chạy lại sau vài giây\n');
+
+        console.log('⏸️  Chrome sẽ mở để bạn xem lỗi');
+        console.log('   Nhấn ENTER để đóng Chrome...\n');
+
+        await new Promise(resolve => {
+            process.stdin.once('data', () => resolve());
+        });
     }
 
     await browser.close();
