@@ -37,6 +37,8 @@ npm install
 
 ### Bước 2: Chạy Automation
 
+#### Option A: Tạo Video (Không Tải Về)
+
 ```cmd
 2-run-with-cookies.bat
 ```
@@ -48,20 +50,54 @@ Script sẽ:
 4. Tự động tạo video trên Sora
 5. Đóng Chrome khi hoàn tất
 
+#### Option B: Tạo Video + Tự Động Tải Về
+
+```cmd
+3-run-with-download.bat
+```
+
+Script sẽ:
+1. Đọc cookies từ `cookies.json`
+2. Mở Chrome mới
+3. Load cookies vào browser
+4. Tự động tạo video trên Sora
+5. Đợi 5 phút để video render
+6. **Tự động tải video về thư mục chỉ định**
+
+⚙️ **Cấu hình thư mục download:** Sửa dòng 16 trong `sora-with-download.js`
+
+#### Option C: Test Download (Không Tạo Video Mới)
+
+```cmd
+4-test-download.bat
+```
+
+Script sẽ:
+1. Sử dụng video đã có trên Sora
+2. Thử nghiệm chức năng download
+3. Kiểm tra selector và download path
+
+💡 **Dùng khi:** Muốn test download mà không tạo video mới
+
 ---
 
 ## 📁 Cấu Trúc
 
 ```
 ├── 1-extract-cookies.bat       # Lấy cookies từ Chrome Profile
-├── 2-run-with-cookies.bat      # Chạy automation với cookies
+├── 2-run-with-cookies.bat      # Chạy automation với cookies (tạo video)
+├── 3-run-with-download.bat     # Chạy automation + tự động download
+├── 4-test-download.bat         # Test download với video có sẵn
 ├── extract-cookies.js          # Script lấy cookies
 ├── sora-with-cookies.js        # Script automation chính
+├── sora-with-download.js       # Script với chức năng tự động download
+├── test-download.js            # Script test download
 ├── kill-chrome.bat             # Tiện ích đóng Chrome (nếu cần)
 ├── package.json                # Dependencies
 ├── .gitignore                  # Bảo vệ cookies.json
 ├── CONFIG.md                   # Thông tin cấu hình paths
-└── COOKIES-GUIDE.md            # Hướng dẫn chi tiết
+├── COOKIES-GUIDE.md            # Hướng dẫn chi tiết cookies
+└── DOWNLOAD-GUIDE.md           # Hướng dẫn chi tiết download
 ```
 
 ---
@@ -112,11 +148,14 @@ Chạy lại `1-extract-cookies.bat` để cập nhật cookies (thường sau 5
 ## 📚 Tài Liệu
 
 - **[COOKIES-GUIDE.md](COOKIES-GUIDE.md)** - Hướng dẫn chi tiết về cookies
+- **[DOWNLOAD-GUIDE.md](DOWNLOAD-GUIDE.md)** - Hướng dẫn chi tiết về download
 - **[CONFIG.md](CONFIG.md)** - Thông tin cấu hình
 
 ---
 
 ## 🎯 Workflow
+
+### Workflow Chính: Tạo Video + Download
 
 ```
 ┌─────────────────────────┐
@@ -126,13 +165,38 @@ Chạy lại `1-extract-cookies.bat` để cập nhật cookies (thường sau 5
              │
              ▼
 ┌─────────────────────────┐
-│ 2. Chạy automation      │
+│ 2A. Chỉ tạo video       │
 │ 2-run-with-cookies.bat  │
+│         OR              │
+│ 2B. Tạo + Download      │
+│ 3-run-with-download.bat │
 └────────────┬────────────┘
              │
              ▼
 ┌─────────────────────────┐
 │ ✅ Video được tạo       │
+│ (và download nếu 2B)    │
+└─────────────────────────┘
+```
+
+### Workflow Test: Chỉ Test Download
+
+```
+┌─────────────────────────┐
+│ 1. Đảm bảo có video     │
+│ trên Sora profile       │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│ 2. Chạy test download   │
+│ 4-test-download.bat     │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│ ✅ Kiểm tra thư mục     │
+│ download                │
 └─────────────────────────┘
 ```
 
