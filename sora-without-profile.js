@@ -1,31 +1,29 @@
 const puppeteer = require('puppeteer'); // v23.0.0 or later
-const path = require('path');
+
+/**
+ * PHƯƠNG ÁN DỰ PHÒNG: Script không sử dụng Chrome profile
+ * Sử dụng script này nếu script chính (sora-with-profile.js) gặp lỗi
+ *
+ * LƯU Ý: Bạn cần đăng nhập thủ công vào Sora khi Chrome mở lên
+ */
 
 (async () => {
-    console.log('Đang khởi động Chrome với profile...');
+    console.log('Đang khởi động Chrome (không dùng profile)...');
+    console.log('LƯU Ý: Bạn sẽ cần đăng nhập thủ công vào Sora!');
 
-    // Cấu hình để sử dụng Chrome profile có sẵn
     const browser = await puppeteer.launch({
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        userDataDir: 'C:\\Users\\tuyenhm\\AppData\\Local\\Google\\Chrome\\User Data',
-        // Sử dụng Profile 14
+        headless: false, // Hiển thị trình duyệt
+        defaultViewport: null,
         args: [
-            '--profile-directory=Profile 14',
+            '--start-maximized',
             '--no-first-run',
             '--no-default-browser-check',
-            '--disable-blink-features=AutomationControlled',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--no-sandbox',
-            '--disable-setuid-sandbox'
-        ],
-        headless: false, // Chạy ở chế độ có giao diện để bạn xem được
-        // Nếu bạn muốn chạy nền thì đổi thành: headless: true
-        ignoreDefaultArgs: ['--disable-extensions'],
+            '--disable-blink-features=AutomationControlled'
+        ]
     });
 
     const page = await browser.newPage();
-    const timeout = 5000;
+    const timeout = 30000; // Tăng timeout lên 30 giây để có thời gian đăng nhập
     page.setDefaultTimeout(timeout);
 
     {
@@ -35,12 +33,38 @@ const path = require('path');
             height: 945
         })
     }
+
+    // Đi tới trang Sora
     {
         const targetPage = page;
+        console.log('Đang mở trang Sora...');
         await targetPage.goto('https://sora.chatgpt.com/profile');
     }
+
+    // Chờ người dùng đăng nhập (nếu chưa đăng nhập)
+    console.log('\n========================================');
+    console.log('HƯỚNG DẪN:');
+    console.log('1. Nếu chưa đăng nhập, hãy đăng nhập vào Sora');
+    console.log('2. Sau khi đăng nhập xong, script sẽ tự động tiếp tục');
+    console.log('========================================\n');
+
+    // Chờ textarea xuất hiện (nghĩa là đã đăng nhập thành công)
     {
         const targetPage = page;
+        console.log('Đang chờ trang Sora tải...');
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Describe your video...)'),
+            targetPage.locator('textarea'),
+        ])
+            .setTimeout(timeout)
+            .wait();
+        console.log('Trang đã tải xong!');
+    }
+
+    // Click vào textarea
+    {
+        const targetPage = page;
+        console.log('Đang click vào textarea...');
         await puppeteer.Locator.race([
             targetPage.locator('::-p-aria(Describe your video...)'),
             targetPage.locator('textarea'),
@@ -55,8 +79,11 @@ const path = require('path');
               },
             });
     }
+
+    // Điền nội dung
     {
         const targetPage = page;
+        console.log('Đang điền nội dung video...');
         await puppeteer.Locator.race([
             targetPage.locator('::-p-aria(Describe your video...)'),
             targetPage.locator('textarea'),
@@ -65,9 +92,13 @@ const path = require('path');
         ])
             .setTimeout(timeout)
             .fill('Scene in a quiet kitchen at night. The room is dimly lit by the lamp. Near a pile of grocery bags, a lifelike stuffed rabbit lies motionless.\nThere are many crumbs of bread scattered on the floor.\nScene 1:\n- The cat hides in a stuffed rabbit, the rabbit is sitting quietly, its eyes glancing sideways to observe the mouse.\nScene 2:\n- A mouse crawls out from behind the trash can, approaches the stuffed rabbit, the mouse approaches, eats the crumbs of bread that have fallen on the floor.\nScene 3:\n- From inside the stuffed rabbit, the cat suddenly jumps out, with a sudden pounce, the cat grabs the mouse.\nCamera:\n- Low static angle; warm tungsten light; slow zoom to reveal deception.');
+        console.log('Đã điền nội dung!');
     }
+
+    // Click nút Create video
     {
         const targetPage = page;
+        console.log('Đang click nút "Create video"...');
         await puppeteer.Locator.race([
             targetPage.locator('::-p-aria(Create video) >>>> ::-p-aria([role=\\"image\\"])'),
             targetPage.locator('div:nth-of-type(2) > button.inline-flex > svg'),
@@ -81,11 +112,22 @@ const path = require('path');
                 y: 12,
               },
             });
+        console.log('Đã click nút Create video!');
     }
+
+    console.log('\n========================================');
+    console.log('HOÀN TẤT! Video đang được tạo...');
+    console.log('========================================\n');
+
+    // Chờ 5 giây trước khi đóng để xem kết quả
+    console.log('Script sẽ đóng trình duyệt sau 5 giây...');
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     await browser.close();
 
 })().catch(err => {
+    console.error('\n[ERROR] Đã xảy ra lỗi:');
     console.error(err);
+    console.error('\nVui lòng kiểm tra lại và thử lại!');
     process.exit(1);
 });

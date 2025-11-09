@@ -1,0 +1,44 @@
+name: Auto-merge Claude Branches to Main
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+
+    # Chỉ chạy cho các PR từ branch bắt đầu với 'claude/'
+    if: startsWith(github.head_ref, 'claude/')
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Auto-approve PR
+        if: github.actor == 'github-actions[bot]' || startsWith(github.head_ref, 'claude/')
+        run: |
+          echo "Auto-approving PR from Claude branch"
+          gh pr review ${{ github.event.pull_request.number }} --approve --body "Tự động approve PR từ Claude branch"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge
+        run: |
+          echo "Enabling auto-merge for PR #${{ github.event.pull_request.number }}"
+          gh pr merge ${{ github.event.pull_request.number }} --auto --merge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge PR if checks pass
+        run: |
+          echo "Attempting to merge PR #${{ github.event.pull_request.number }}"
+          gh pr merge ${{ github.event.pull_request.number }} --merge --auto
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
