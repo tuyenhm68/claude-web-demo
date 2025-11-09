@@ -17,10 +17,10 @@ echo [OK] Da dong Chrome!
 
 echo.
 echo [BUOC 2/4] Khoi dong Chrome voi Remote Debugging...
-start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+start "" "E:\temp\VEO_3_create-16-10\creatve_viodeo\browser133\chrome.exe" ^
     --remote-debugging-port=9222 ^
-    --user-data-dir="C:\Users\tuyenhm\AppData\Local\Google\Chrome\User Data" ^
-    --profile-directory="Profile 14"
+    --user-data-dir="E:\temp\VEO_3_create-16-10\creatve_viodeo\profile" ^
+    --profile-directory="Profile 1"
 
 echo [OK] Chrome da khoi dong!
 

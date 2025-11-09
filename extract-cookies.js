@@ -12,8 +12,8 @@ const path = require('path');
  */
 
 const COOKIES_FILE = path.join(__dirname, 'cookies.json');
-const PROFILE_PATH = 'C:\\Users\\tuyenhm\\AppData\\Local\\Google\\Chrome\\User Data';
-const PROFILE_DIR = 'Profile 14';
+const PROFILE_PATH = 'E:\\temp\\VEO_3_create-16-10\\creatve_viodeo\\profile';
+const PROFILE_DIR = 'Profile 1';
 
 (async () => {
     console.log('========================================');
@@ -25,7 +25,7 @@ const PROFILE_DIR = 'Profile 14';
     let browser;
     try {
         browser = await puppeteer.launch({
-            executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+            executablePath: 'E:\\temp\\VEO_3_create-16-10\\creatve_viodeo\\browser133\\chrome.exe',
             userDataDir: PROFILE_PATH,
             args: [
                 `--profile-directory=${PROFILE_DIR}`,

@@ -6,11 +6,11 @@ const path = require('path');
 
     // Cấu hình để sử dụng Chrome profile có sẵn
     const browser = await puppeteer.launch({
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        userDataDir: 'C:\\Users\\tuyenhm\\AppData\\Local\\Google\\Chrome\\User Data',
-        // Sử dụng Profile 14
+        executablePath: 'E:\\temp\\VEO_3_create-16-10\\creatve_viodeo\\browser133\\chrome.exe',
+        userDataDir: 'E:\\temp\\VEO_3_create-16-10\\creatve_viodeo\\profile',
+        // Sử dụng Profile 1
         args: [
-            '--profile-directory=Profile 14',
+            '--profile-directory=Profile 1',
             '--no-first-run',
             '--no-default-browser-check',
             '--disable-blink-features=AutomationControlled',
